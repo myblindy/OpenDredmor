@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\OpenDredmor.Audio.SDL3\OpenDredmor.Audio.SDL3.csproj" />
     <ProjectReference Include="..\OpenDredmor.CommonInterfaces\OpenDredmor.CommonInterfaces.csproj" />
     <ProjectReference Include="..\OpenDredmor.Renderer.SDL3\OpenDredmor.Renderer.SDL3.csproj" />
   </ItemGroup>

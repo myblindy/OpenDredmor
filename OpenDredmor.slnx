@@ -3,6 +3,9 @@
     <Platform Name="Any CPU" />
     <Platform Name="x64" />
   </Configurations>
+  <Project Path="OpenDredmor.Audio.SDL3/OpenDredmor.Audio.SDL3.csproj" Id="afc44c0e-56f9-48a3-ac90-805bf5a0bc46">
+    <Platform Solution="Debug|x64" Project="x64" />
+  </Project>
   <Project Path="OpenDredmor.CommonInterfaces/OpenDredmor.CommonInterfaces.csproj" Id="7dcd5de2-7e6a-4251-8aad-28a48570f56c">
     <Platform Solution="*|x64" Project="x64" />
   </Project>

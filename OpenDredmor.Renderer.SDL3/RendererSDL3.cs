@@ -1,26 +1,26 @@
 ﻿using OpenDredmor.CommonInterfaces;
+using OpenDredmor.Renderer.SDL3.Support;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Formats;
 using System.Runtime.InteropServices;
+using SDL;
 using Image = SixLabors.ImageSharp.Image;
-
-using static SDL3.SDL;
 
 namespace OpenDredmor.Renderer.SDL3;
 
 public unsafe class RendererSDL3 : BaseRenderer
 {
-    private nint window;
-    private nint renderer;
+    SDL_Window* window;
+    SDL_Renderer* renderer;
 
     public RendererSDL3(TimeProvider timeProvider, BaseVFS vfs)
         : base(timeProvider, vfs)
     {
-        if (!Init(InitFlags.Video))
-            throw new ApplicationException($"Failed to initialize SDL: {GetError()}");
-        if (!CreateWindowAndRenderer("OpenDredmor", Width = 800, Height = 600, 0, out window, out renderer))
-            throw new ApplicationException($"Failed to create SDL window and renderer: {GetError()}");
+        if (!SDL.SDL3.SDL_Init(SDL_InitFlags.SDL_INIT_VIDEO))
+            throw new ApplicationException($"Failed to initialize SDL: {SDL.SDL3.SDL_GetError()}");
+        if (!SDL.SDL3.SDL_CreateWindowAndRenderer("OpenDredmor", Width = 800, Height = 600, 0, out window, out renderer))
+            throw new ApplicationException($"Failed to create SDL window and renderer: {SDL.SDL3.SDL_GetError()}");
     }
 
     readonly List<Sprite> sprites = [];
@@ -29,47 +29,47 @@ public unsafe class RendererSDL3 : BaseRenderer
     public override void Run()
     {
         var args = Environment.GetCommandLineArgs();
-        if (EnterAppMainCallbacks(args.Length, args, SdlAppInit, SdlAppIterate, SdlAppEvent, SdlAppQuit) != 0)
-            throw new ApplicationException($"Failed to enter SDL app main callbacks: {GetError()}");
+        if (SDL.SDL3.SDL_EnterAppMainCallbacks(args.Length, args, SdlAppInit, SdlAppIterate, SdlAppEvent, SdlAppQuit) != 0)
+            throw new ApplicationException($"Failed to enter SDL app main callbacks: {SDL.SDL3.SDL_GetError()}");
     }
 
-    AppResult SdlAppInit(nint appstate, int argc, string[] argv) =>
-        AppResult.Continue;
+    SDL_AppResult SdlAppInit(void** appState, int argc, byte** argv) =>
+        SDL_AppResult.SDL_APP_CONTINUE;
 
-    AppResult SdlAppIterate(nint appstate)
+    SDL_AppResult SdlAppIterate(void* appState)
     {
         synchronizationContext.ExecutePendingWorkItems();
 
         sprites.Clear();
 
-        SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        RenderClear(renderer);
+        SDL.SDL3.SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL.SDL3.SDL_RenderClear(renderer);
         FireOnNewFrame();
         RenderQueuedSprites();
-        RenderPresent(renderer);
+        SDL.SDL3.SDL_RenderPresent(renderer);
 
-        return AppResult.Continue;
+        return SDL_AppResult.SDL_APP_CONTINUE;
     }
 
-    AppResult SdlAppEvent(nint appstate, ref Event @event)
+    SDL_AppResult SdlAppEvent(void* appState, SDL_Event* @event)
     {
-        if ((EventType)@event.Type == EventType.Quit)
-            return AppResult.Success;
-        else if ((EventType)@event.Type == EventType.MouseButtonDown)
-            FireOnMouseClicked(@event.Button.X, @event.Button.Y, @event.Button.Button);
+        if (@event->Type == SDL_EventType.SDL_EVENT_QUIT)
+            return SDL_AppResult.SDL_APP_SUCCESS;
+        else if (@event->Type == SDL_EventType.SDL_EVENT_MOUSE_BUTTON_DOWN)
+            FireOnMouseClicked(@event->button.x, @event->button.y, @event->button.button);
 
-        return AppResult.Continue;
+        return SDL_AppResult.SDL_APP_CONTINUE;
     }
 
-    void SdlAppQuit(nint appstate, AppResult result)
+    void SdlAppQuit(void* appState, SDL_AppResult result)
     {
-        DestroyRenderer(renderer);
-        renderer = 0;
+        SDL.SDL3.SDL_DestroyRenderer(renderer);
+        renderer = null;
 
-        DestroyWindow(window);
-        window = 0;
+        SDL.SDL3.SDL_DestroyWindow(window);
+        window = null;
 
-        Quit();
+        SDL.SDL3.SDL_Quit();
     }
 
     public override void RenderSprites(params scoped ReadOnlySpan<Sprite> sprites)
@@ -91,16 +91,19 @@ public unsafe class RendererSDL3 : BaseRenderer
                 if (!image.DangerousTryGetSinglePixelMemory(out var pixelMemory))
                     throw new NotImplementedException();
 
-                loadedTextures[sprite.Path] = texture = CreateTexture(renderer, PixelFormat.ARGB8888, (int)TextureAccess.Static, image.Width, image.Height);
-                UpdateTexture(texture, new Rect { W = image.Width, H = image.Height }, MemoryMarshal.AsBytes(pixelMemory.Span), image.Width * sizeof(Bgra32));
+                loadedTextures[sprite.Path] = texture = (IntPtr)SDL.SDL3.SDL_CreateTexture(renderer, SDL_PixelFormat.SDL_PIXELFORMAT_ARGB8888,
+                    (int)SDL_TextureAccess.SDL_TEXTUREACCESS_STATIC, image.Width, image.Height);
+
+                SDL.SDL3.SDL_UpdateTexture((SDL_Texture*)texture, new SDL_Rect { w = image.Width, h = image.Height },
+                    MemoryMarshal.AsBytes(pixelMemory.Span), image.Width * sizeof(Bgra32));
             }
 
-            RenderTexture(renderer, texture, 0, new FRect
+            SDL.SDL3.SDL_RenderTexture(renderer, (SDL_Texture*)texture, null, new SDL_FRect
             {
-                X = sprite.DstRect.X,
-                Y = sprite.DstRect.Y,
-                W = sprite.DstRect.W,
-                H = sprite.DstRect.H
+                x = sprite.DstRect.X,
+                y = sprite.DstRect.Y,
+                w = sprite.DstRect.W,
+                h = sprite.DstRect.H
             });
         }
     }
