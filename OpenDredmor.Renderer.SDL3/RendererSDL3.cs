@@ -55,6 +55,8 @@ public unsafe class RendererSDL3 : BaseRenderer
     {
         if ((EventType)@event.Type == EventType.Quit)
             return AppResult.Success;
+        else if ((EventType)@event.Type == EventType.MouseButtonDown)
+            FireOnMouseClicked(@event.Button.X, @event.Button.Y, @event.Button.Button);
 
         return AppResult.Continue;
     }

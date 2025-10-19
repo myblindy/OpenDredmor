@@ -9,6 +9,9 @@ public abstract class BaseRenderer : IDisposable
 
     public event Action? OnNewFrame;
 
+    public readonly record struct MouseClickedEventArgs(float X, float Y, int Button);
+    public event EventHandler<MouseClickedEventArgs>? OnMouseClicked;
+
     protected readonly SingleThreadSynchronizationContext synchronizationContext;
 
     public int Width { get; protected set; }
@@ -23,6 +26,7 @@ public abstract class BaseRenderer : IDisposable
     }
 
     protected void FireOnNewFrame() => OnNewFrame?.Invoke();
+    protected void FireOnMouseClicked(float x, float y, int button) => OnMouseClicked?.Invoke(this, new MouseClickedEventArgs(x, y, button));
 
     public abstract void Run();
 

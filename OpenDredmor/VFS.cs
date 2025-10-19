@@ -6,28 +6,34 @@ namespace OpenDredmor;
 
 class VFS : BaseVFS
 {
-    readonly int expansionCount;
+    readonly string[] expansionDirectoryNames;
 
     public VFS([FromKeyedServices(ConfigurationKeys.GameDirectory)] IFileProvider fileProvider) : base(fileProvider)
     {
         // Count expansions by checking for directories named "expansionX"
+        var expansionCount = 0;
+        List<string> expansionDirectoryNames = [""];
         while (true)
         {
             var nextExpansionDirectoryName = expansionCount == 0 ? "expansion" : $"expansion{expansionCount + 1}";
             var dirInfo = fileProvider.GetDirectoryContents(nextExpansionDirectoryName);
             if (dirInfo.Exists)
+            {
                 ++expansionCount;
+                expansionDirectoryNames.Add(nextExpansionDirectoryName);
+            }
             else
                 break;
         }
+
+        this.expansionDirectoryNames = [.. expansionDirectoryNames.AsEnumerable().Reverse()];
     }
 
     public override Stream OpenLatestFile(string path)
     {
-        for (int expansionIndex = expansionCount; expansionIndex >= 0; --expansionIndex)
+        foreach(var expansionDirectoryName in expansionDirectoryNames)
         {
-            var expansionPrefix = expansionIndex == 0 ? "" : expansionIndex == 1 ? "expansion" : $"expansion{expansionIndex}";
-            var fullPath = Path.Combine(expansionPrefix, path);
+            var fullPath = Path.Combine(expansionDirectoryName, path);
             var fileInfo = fileProvider.GetFileInfo(fullPath);
             if (fileInfo.Exists)
                 return fileInfo.CreateReadStream();
