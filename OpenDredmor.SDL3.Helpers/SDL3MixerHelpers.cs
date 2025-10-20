@@ -5,6 +5,7 @@ using System.Text;
 
 namespace OpenDredmor.SDL3.Helpers;
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "SDL Naming")]
 public static unsafe class SDL3MixerHelpers
 {
     extension(SDL3_mixer)

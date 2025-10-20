@@ -4,7 +4,7 @@ namespace OpenDredmor.CommonInterfaces.Support;
 
 public class SingleThreadSynchronizationContext : SynchronizationContext
 {
-    record WorkItem(SendOrPostCallback Callback, object? State, ManualResetEventSlim? ResetEvent)
+    sealed record WorkItem(SendOrPostCallback Callback, object? State, ManualResetEventSlim? ResetEvent)
     {
         public void Execute()
         {

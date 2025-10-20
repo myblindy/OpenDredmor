@@ -1,15 +1,16 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using OpenDredmor.CommonInterfaces;
 
 namespace OpenDredmor;
 
-class GameLocation : IGameLocation
+sealed class GameLocation : IGameLocation
 {
     public IFileProvider FileProvider { get; }
 
-    public GameLocation(IConfiguration configuration)
+    public GameLocation(IConfiguration configuration, ILogger<GameLocation> logger)
     {
         var gameDirectory = configuration["game-directory"];
 
@@ -26,7 +27,9 @@ class GameLocation : IGameLocation
                 }
             }
 
-        FileProvider = new PhysicalFileProvider(gameDirectory ??
-            Path.Combine(Environment.ProcessPath!, "Dungeons of Dredmor"));
+        gameDirectory ??= Path.Combine(Environment.ProcessPath!, "Dungeons of Dredmor");
+        FileProvider = new PhysicalFileProvider(gameDirectory);
+
+        logger.LogInformation("Using game directory: {GameDirectory}", gameDirectory);
     }
 }

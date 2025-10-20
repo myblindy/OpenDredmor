@@ -26,7 +26,7 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
 
         var args = Environment.GetCommandLineArgs();
         if (SDL.SDL3.SDL_EnterAppMainCallbacks(args.Length, args, SdlAppInit, SdlAppIterate, SdlAppEvent, SdlAppQuit) != 0)
-            throw new ApplicationException($"Failed to enter SDL app main callbacks: {SDL.SDL3.SDL_GetError()}");
+            throw new InvalidOperationException($"Failed to enter SDL app main callbacks: {SDL.SDL3.SDL_GetError()}");
         shutdownCompleteEvent.Set();
     }
 
@@ -39,16 +39,16 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
     unsafe SDL_AppResult SdlAppInit(void** appState, int argc, byte** argv)
     {
         if (!SDL.SDL3.SDL_Init(SDL_InitFlags.SDL_INIT_VIDEO | SDL_InitFlags.SDL_INIT_AUDIO))
-            throw new ApplicationException($"Failed to initialize SDL: {SDL.SDL3.SDL_GetError()}");
+            throw new InvalidOperationException($"Failed to initialize SDL: {SDL.SDL3.SDL_GetError()}");
         if (!SDL.SDL3.SDL_CreateWindowAndRenderer("OpenDredmor", Width = 800, Height = 600, 0, out window, out renderer))
-            throw new ApplicationException($"Failed to create SDL window and renderer: {SDL.SDL3.SDL_GetError()}");
+            throw new InvalidOperationException($"Failed to create SDL window and renderer: {SDL.SDL3.SDL_GetError()}");
 
         return SDL_AppResult.SDL_APP_CONTINUE;
     }
 
     unsafe SDL_AppResult SdlAppIterate(void* appState)
     {
-        synchronizationContext.ExecutePendingWorkItems();
+        SynchronizationContext!.ExecutePendingWorkItems();
 
         sprites.Clear();
 
@@ -79,7 +79,7 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
         SDL.SDL3.SDL_DestroyWindow(window);
         window = null;
 
-        appLifetime.StopApplication();
+        AppLifetime.StopApplication();
     }
 
     public override void RenderSprites(params scoped ReadOnlySpan<Sprite> sprites)
@@ -95,7 +95,7 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
             if (!loadedTextures.TryGetValue(sprite.Path, out var texture))
             {
                 Image<Bgra32> image;
-                using (var imageStream = vfs.OpenLatestFile(sprite.Path))
+                using (var imageStream = VFS.OpenLatestFile(sprite.Path))
                     image = Image.Load<Bgra32>(imageDecoderOptions, imageStream);
 
                 if (!image.DangerousTryGetSinglePixelMemory(out var pixelMemory))

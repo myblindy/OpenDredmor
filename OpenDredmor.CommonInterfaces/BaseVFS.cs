@@ -4,7 +4,7 @@ namespace OpenDredmor.CommonInterfaces;
 
 public abstract class BaseVFS(IFileProvider fileProvider)
 {
-    protected readonly IFileProvider fileProvider = fileProvider;
+    protected IFileProvider FileProvider { get; } = fileProvider;
 
     public abstract Stream OpenLatestFile(string path);
 }

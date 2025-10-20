@@ -4,6 +4,7 @@ using System.Text;
 
 namespace OpenDredmor.SDL3.Helpers;
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "SDL Naming")]
 public static unsafe class SDL3Helpers
 {
     public delegate SDL_AppResult SDLAppInitFunc(void** appState, int argc, byte** argv);
@@ -18,7 +19,7 @@ public static unsafe class SDL3Helpers
         {
             fixed (SDL_Window** pWindow = &window)
             fixed (SDL_Renderer** pRenderer = &renderer)
-            fixed (byte* pTitle = Encoding.UTF8.GetBytes(title))
+            fixed (byte* pTitle = Encoding.UTF8.GetBytes(title + "\0"))
                 return SDL.SDL3.SDL_CreateWindowAndRenderer(pTitle, width, height, windowFlags, pWindow, pRenderer);
         }
 

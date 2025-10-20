@@ -2,7 +2,7 @@
 
 namespace OpenDredmor;
 
-class Game : BaseGame
+sealed class Game : BaseGame
 {
     readonly BaseAudio audio;
 

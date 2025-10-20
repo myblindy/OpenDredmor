@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <Platforms>AnyCPU;x64</Platforms>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AnalysisLevel>preview-recommended</AnalysisLevel>
   </PropertyGroup>
 
   <ItemGroup>

@@ -2,7 +2,7 @@
 
 namespace OpenDredmor;
 
-class VFS : BaseVFS
+sealed class VFS : BaseVFS
 {
     readonly string[] expansionDirectoryNames;
 
@@ -14,7 +14,7 @@ class VFS : BaseVFS
         while (true)
         {
             var nextExpansionDirectoryName = expansionCount == 0 ? "expansion" : $"expansion{expansionCount + 1}";
-            var dirInfo = fileProvider.GetDirectoryContents(nextExpansionDirectoryName);
+            var dirInfo = FileProvider.GetDirectoryContents(nextExpansionDirectoryName);
             if (dirInfo.Exists)
             {
                 ++expansionCount;
@@ -32,7 +32,7 @@ class VFS : BaseVFS
         foreach (var expansionDirectoryName in expansionDirectoryNames)
         {
             var fullPath = Path.Combine(expansionDirectoryName, path);
-            var fileInfo = fileProvider.GetFileInfo(fullPath);
+            var fileInfo = FileProvider.GetFileInfo(fullPath);
             if (fileInfo.Exists)
                 return fileInfo.CreateReadStream();
         }

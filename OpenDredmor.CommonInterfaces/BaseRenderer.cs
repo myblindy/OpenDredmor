@@ -5,9 +5,9 @@ namespace OpenDredmor.CommonInterfaces;
 
 public abstract class BaseRenderer(TimeProvider timeProvider, BaseVFS vfs, IHostApplicationLifetime appLifetime) : IDisposable
 {
-    protected readonly TimeProvider timeProvider = timeProvider;
-    protected readonly BaseVFS vfs = vfs;
-    protected readonly IHostApplicationLifetime appLifetime = appLifetime;
+    protected TimeProvider TimeProvider { get; } = timeProvider;
+    protected BaseVFS VFS { get; } = vfs;
+    protected IHostApplicationLifetime AppLifetime { get; } = appLifetime;
 
     public event Action? OnNewFrame;
     protected void FireOnNewFrame() => OnNewFrame?.Invoke();
@@ -16,15 +16,15 @@ public abstract class BaseRenderer(TimeProvider timeProvider, BaseVFS vfs, IHost
     public event EventHandler<MouseClickedEventArgs>? OnMouseClicked;
     protected void FireOnMouseClicked(float x, float y, int button) => OnMouseClicked?.Invoke(this, new MouseClickedEventArgs(x, y, button));
 
-    protected SingleThreadSynchronizationContext? synchronizationContext;
+    protected SingleThreadSynchronizationContext? SynchronizationContext { get; private set; }
 
     public int Width { get; protected set; }
     public int Height { get; protected set; }
 
     public virtual void Run()
     {
-        synchronizationContext = new SingleThreadSynchronizationContext();
-        SynchronizationContext.SetSynchronizationContext(synchronizationContext);
+        SynchronizationContext = new SingleThreadSynchronizationContext();
+        System.Threading.SynchronizationContext.SetSynchronizationContext(SynchronizationContext);
     }
     public abstract Task StopAsync();
 

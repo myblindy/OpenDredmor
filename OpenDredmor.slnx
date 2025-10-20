@@ -3,16 +3,19 @@
     <Platform Name="Any CPU" />
     <Platform Name="x64" />
   </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
   <Project Path="OpenDredmor.Audio.SDL3/OpenDredmor.Audio.SDL3.csproj" Id="afc44c0e-56f9-48a3-ac90-805bf5a0bc46">
-    <Platform Solution="Debug|x64" Project="x64" />
-  </Project>
-  <Project Path="OpenDredmor.CommonInterfaces/OpenDredmor.CommonInterfaces.csproj" Id="7dcd5de2-7e6a-4251-8aad-28a48570f56c">
     <Platform Solution="*|x64" Project="x64" />
   </Project>
+  <Project Path="OpenDredmor.CommonInterfaces/OpenDredmor.CommonInterfaces.csproj" Id="7dcd5de2-7e6a-4251-8aad-28a48570f56c" />
   <Project Path="OpenDredmor.Renderer.SDL3/OpenDredmor.Renderer.SDL3.csproj" Id="d8121ec6-e7f3-4c25-97f8-85813240a11d">
     <Platform Solution="*|x64" Project="x64" />
   </Project>
-  <Project Path="OpenDredmor.SDL3.Helpers/OpenDredmor.SDL3.Helpers.csproj" Id="f0a4525d-5236-4da2-9f84-185648189321" />
+  <Project Path="OpenDredmor.SDL3.Helpers/OpenDredmor.SDL3.Helpers.csproj" Id="f0a4525d-5236-4da2-9f84-185648189321">
+    <Platform Solution="*|x64" Project="x64" />
+  </Project>
   <Project Path="OpenDredmor/OpenDredmor.csproj">
     <Platform Solution="*|x64" Project="x64" />
   </Project>

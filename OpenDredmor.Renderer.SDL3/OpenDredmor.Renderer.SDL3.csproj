@@ -1,23 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <Platforms>AnyCPU;x64</Platforms>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Platforms>AnyCPU;x64</Platforms>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<LangVersion>preview</LangVersion>
-  </PropertyGroup>
+		<AnalysisLevel>preview-recommended</AnalysisLevel>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
-    <PackageReference Include="ppy.SDL3_ttf-CS" Version="2025.920.0" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
+		<PackageReference Include="ppy.SDL3_ttf-CS" Version="2025.920.0" />
+		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\OpenDredmor.CommonInterfaces\OpenDredmor.CommonInterfaces.csproj" />
-    <ProjectReference Include="..\OpenDredmor.SDL3.Helpers\OpenDredmor.SDL3.Helpers.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\OpenDredmor.CommonInterfaces\OpenDredmor.CommonInterfaces.csproj" />
+		<ProjectReference Include="..\OpenDredmor.SDL3.Helpers\OpenDredmor.SDL3.Helpers.csproj" />
+	</ItemGroup>
 
 </Project>

@@ -13,7 +13,7 @@ public static class SDL3StreamManager
     unsafe delegate nuint ReadDelegate(void* userdata, void* ptr, nuint size, SDL_IOStatus* status);
     unsafe delegate nuint WriteDelegate(void* userdata, void* ptr, nuint size, SDL_IOStatus* status);
     unsafe delegate long SeekDelegate(void* userdata, long offset, SDL_IOWhence whence);
-    class StreamData
+    sealed class StreamData
     {
         public required SizeGetterDelegate SizeGetter { get; set; }
         public required CloseDelegate Close { get; set; }
