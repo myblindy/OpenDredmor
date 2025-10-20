@@ -4,5 +4,5 @@ namespace OpenDredmor.CommonInterfaces;
 
 public interface IGameLocation
 {
-    public IFileProvider FileProvider { get; }
+    IFileProvider FileProvider { get; }
 }

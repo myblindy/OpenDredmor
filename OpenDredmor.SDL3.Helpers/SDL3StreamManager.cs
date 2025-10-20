@@ -21,11 +21,11 @@ public static class SDL3StreamManager
         public required ReadDelegate Read { get; set; }
         public required WriteDelegate Write { get; set; }
         public required SeekDelegate Seek { get; set; }
-        unsafe public SDL_IOStream* SdlStream;
+        public unsafe SDL_IOStream* SdlStream;
     }
-    readonly static ConcurrentDictionary<Stream, StreamData> streams = [];
+    static readonly ConcurrentDictionary<Stream, StreamData> streams = [];
 
-    public unsafe static SDL_IOStream* CreateSDLIOStreamFromStream(Stream stream, bool own = true)
+    public static unsafe SDL_IOStream* CreateSDLIOStreamFromStream(Stream stream, bool own = true)
     {
         StreamData streamData = new()
         {
@@ -73,7 +73,7 @@ public static class SDL3StreamManager
             },
             Seek = (_, offset, whence) =>
             {
-                SeekOrigin origin = whence switch
+                var origin = whence switch
                 {
                     SDL_IOWhence.SDL_IO_SEEK_SET => SeekOrigin.Begin,
                     SDL_IOWhence.SDL_IO_SEEK_CUR => SeekOrigin.Current,

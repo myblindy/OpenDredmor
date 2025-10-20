@@ -20,7 +20,7 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
     readonly List<Sprite> sprites = [];
     readonly Dictionary<string, nint> loadedTextures = [];
 
-    public unsafe override void Run()
+    public override unsafe void Run()
     {
         base.Run();
 
@@ -40,7 +40,7 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
     {
         if (!SDL.SDL3.SDL_Init(SDL_InitFlags.SDL_INIT_VIDEO | SDL_InitFlags.SDL_INIT_AUDIO))
             throw new InvalidOperationException($"Failed to initialize SDL: {SDL.SDL3.SDL_GetError()}");
-        if (!SDL.SDL3.SDL_CreateWindowAndRenderer("OpenDredmor", Width = 800, Height = 600, 0, out window, out renderer))
+        if (!SDL.SDL3.SDL_CreateWindowAndRenderer("OpenDredmor", Width = 1920, Height = 1080, 0, out window, out renderer))
             throw new InvalidOperationException($"Failed to create SDL window and renderer: {SDL.SDL3.SDL_GetError()}");
 
         return SDL_AppResult.SDL_APP_CONTINUE;
@@ -82,10 +82,8 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
         AppLifetime.StopApplication();
     }
 
-    public override void RenderSprites(params scoped ReadOnlySpan<Sprite> sprites)
-    {
+    public override void RenderSprites(params scoped ReadOnlySpan<Sprite> sprites) =>
         this.sprites.AddRange(sprites);
-    }
 
     static readonly DecoderOptions imageDecoderOptions = new() { Configuration = { PreferContiguousImageBuffers = true } };
     unsafe void RenderQueuedSprites()
@@ -108,18 +106,39 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
                     MemoryMarshal.AsBytes(pixelMemory.Span), image.Width * sizeof(Bgra32));
             }
 
+            SDL_FRect sdlDstFRect = default;
+            sdlDstFRect.x = sprite.DstRect.X;
+            sdlDstFRect.y = sprite.DstRect.Y;
+            if (sprite.DstRect.W <= 0 || sprite.DstRect.H <= 0)
+            {
+                SDL.SDL3.SDL_GetTextureSize((SDL_Texture*)texture, out var texW, out var texH);
+                sdlDstFRect.w = sprite.DstRect.W <= 0 ? texW : sprite.DstRect.W;
+                sdlDstFRect.h = sprite.DstRect.H <= 0 ? texH : sprite.DstRect.H;
+            }
+            else if (sprite.DstRect.W > 0 && sprite.DstRect.H <= 0)
+            {
+                SDL.SDL3.SDL_GetTextureSize((SDL_Texture*)texture, out var texW, out var texH);
+                sdlDstFRect.w = sprite.DstRect.W;
+                sdlDstFRect.h = sprite.DstRect.W * texH / texW;
+            }
+            else
+            {
+                sdlDstFRect.w = sprite.DstRect.W;
+                sdlDstFRect.h = sprite.DstRect.H;
+            }
+
             SDL.SDL3.SDL_RenderTexture(renderer, (SDL_Texture*)texture, null, new SDL_FRect
             {
-                x = sprite.DstRect.X,
-                y = sprite.DstRect.Y,
-                w = sprite.DstRect.W,
-                h = sprite.DstRect.H
+                x = sdlDstFRect.x / VirtualWidth * Width,
+                y = sdlDstFRect.y / VirtualHeight * Height,
+                w = sdlDstFRect.w / VirtualWidth * Width,
+                h = sdlDstFRect.h / VirtualHeight * Height,
             });
         }
     }
 
     #region IDisposable
-    private bool disposedValue;
+    bool disposedValue;
 
     protected virtual void Dispose(bool disposing)
     {

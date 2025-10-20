@@ -42,8 +42,8 @@ public static unsafe class SDL3Helpers
             SDLAppInitFunc appInitFunc, SDLAppIterateFunc appIterateFunc, SDLAppEventFunc appEventFunc,
             SDLAppQuitFunc appQuitFunc)
         {
-            byte** argvPtrs = stackalloc byte*[argv.Length];
-            for (int i = 0; i < argv.Length; i++)
+            var argvPtrs = stackalloc byte*[argv.Length];
+            for (var i = 0; i < argv.Length; i++)
             {
                 var argBytes = Encoding.UTF8.GetBytes(argv[i] + '\0');
                 var pArg = (byte*)NativeMemory.Alloc((nuint)argBytes.Length);
@@ -74,7 +74,7 @@ public static unsafe class SDL3Helpers
             }
             finally
             {
-                for (byte* argvPtr = *argvPtrs; argvPtr < argvPtrs + argv.Length; ++argvPtr)
+                for (var argvPtr = *argvPtrs; argvPtr < argvPtrs + argv.Length; ++argvPtr)
                     NativeMemory.Free(argvPtr);
             }
         }
@@ -89,6 +89,13 @@ public static unsafe class SDL3Helpers
         {
             fixed (SDL_IOStreamInterface* pInterface = &ioInterface)
                 return SDL.SDL3.SDL_OpenIO(pInterface, userdata);
+        }
+
+        public static SDLBool SDL_GetTextureSize(SDL_Texture* texture, out float width, out float height)
+        {
+            fixed (float* pWidth = &width)
+            fixed (float* pHeight = &height)
+                return SDL.SDL3.SDL_GetTextureSize(texture, pWidth, pHeight);
         }
     }
 }

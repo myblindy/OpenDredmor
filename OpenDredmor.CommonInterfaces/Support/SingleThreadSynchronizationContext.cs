@@ -12,15 +12,15 @@ public class SingleThreadSynchronizationContext : SynchronizationContext
             ResetEvent?.Set();
         }
     }
-    private readonly ConcurrentQueue<WorkItem> workItems = [];
-    private readonly Thread thread = Thread.CurrentThread;
+    readonly ConcurrentQueue<WorkItem> workItems = [];
+    readonly Thread thread = Thread.CurrentThread;
 
     public override void Post(SendOrPostCallback d, object? state)
     {
         workItems.Enqueue(new(d, state, null));
     }
 
-    private WorkItem? ExecuteAndReturnNextWorkItem()
+    WorkItem? ExecuteAndReturnNextWorkItem()
     {
         if (workItems.TryDequeue(out var currentItem))
             currentItem.Execute();

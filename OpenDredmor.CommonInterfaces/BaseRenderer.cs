@@ -21,6 +21,9 @@ public abstract class BaseRenderer(TimeProvider timeProvider, BaseVFS vfs, IHost
     public int Width { get; protected set; }
     public int Height { get; protected set; }
 
+    public const int VirtualWidth = 1920;
+    public const int VirtualHeight = 1080;
+
     public virtual void Run()
     {
         SynchronizationContext = new SingleThreadSynchronizationContext();
