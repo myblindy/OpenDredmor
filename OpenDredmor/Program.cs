@@ -17,4 +17,4 @@ appBuilder.Services
     .AddHostedService<Game>();
 
 var app = appBuilder.Build();
-app.Run();
+await app.RunAsync();

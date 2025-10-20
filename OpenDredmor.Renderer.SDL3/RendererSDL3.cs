@@ -1,26 +1,22 @@
-﻿using OpenDredmor.CommonInterfaces;
-using OpenDredmor.Renderer.SDL3.Support;
+﻿using Microsoft.Extensions.Hosting;
+using Nito.AsyncEx;
+using OpenDredmor.CommonInterfaces;
+using OpenDredmor.SDL3.Helpers;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Formats;
 using System.Runtime.InteropServices;
 using SDL;
 using Image = SixLabors.ImageSharp.Image;
-using Nito.AsyncEx;
 
 namespace OpenDredmor.Renderer.SDL3;
 
-public class RendererSDL3 : BaseRenderer
+public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicationLifetime appLifetime)
+    : BaseRenderer(timeProvider, vfs, appLifetime)
 {
     unsafe SDL_Window* window;
     unsafe SDL_Renderer* renderer;
     readonly AsyncManualResetEvent shutdownCompleteEvent = new();
-
-    public unsafe RendererSDL3(TimeProvider timeProvider, BaseVFS vfs)
-        : base(timeProvider, vfs)
-    {
-    }
-
     readonly List<Sprite> sprites = [];
     readonly Dictionary<string, nint> loadedTextures = [];
 
@@ -83,7 +79,7 @@ public class RendererSDL3 : BaseRenderer
         SDL.SDL3.SDL_DestroyWindow(window);
         window = null;
 
-        SDL.SDL3.SDL_Quit();
+        appLifetime.StopApplication();
     }
 
     public override void RenderSprites(params scoped ReadOnlySpan<Sprite> sprites)

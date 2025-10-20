@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OpenDredmor.CommonInterfaces\OpenDredmor.CommonInterfaces.csproj" />
+    <ProjectReference Include="..\OpenDredmor.SDL3.Helpers\OpenDredmor.SDL3.Helpers.csproj" />
   </ItemGroup>
 
 </Project>

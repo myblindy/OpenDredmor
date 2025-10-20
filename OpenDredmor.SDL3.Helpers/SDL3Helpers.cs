@@ -2,9 +2,9 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace OpenDredmor.Renderer.SDL3.Support;
+namespace OpenDredmor.SDL3.Helpers;
 
-static unsafe class SDL3Helpers
+public static unsafe class SDL3Helpers
 {
     public delegate SDL_AppResult SDLAppInitFunc(void** appState, int argc, byte** argv);
     public delegate SDL_AppResult SDLAppIterateFunc(void* appState);
@@ -82,6 +82,12 @@ static unsafe class SDL3Helpers
         {
             fixed (SDL_Event* pEvent = &sdlEvent)
                 return SDL.SDL3.SDL_PushEvent(pEvent);
+        }
+
+        public static SDL_IOStream* SDL_OpenIO(in SDL_IOStreamInterface ioInterface, nint userdata)
+        {
+            fixed (SDL_IOStreamInterface* pInterface = &ioInterface)
+                return SDL.SDL3.SDL_OpenIO(pInterface, userdata);
         }
     }
 }

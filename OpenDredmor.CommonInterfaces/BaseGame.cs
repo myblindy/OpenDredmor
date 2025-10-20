@@ -35,7 +35,6 @@ public abstract class BaseGame : IHostedService
 
 public enum GameScene
 {
-    Intro,
     MainMenu,
     InGame,
 }

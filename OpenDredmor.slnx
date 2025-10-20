@@ -12,6 +12,7 @@
   <Project Path="OpenDredmor.Renderer.SDL3/OpenDredmor.Renderer.SDL3.csproj" Id="d8121ec6-e7f3-4c25-97f8-85813240a11d">
     <Platform Solution="*|x64" Project="x64" />
   </Project>
+  <Project Path="OpenDredmor.SDL3.Helpers/OpenDredmor.SDL3.Helpers.csproj" Id="f0a4525d-5236-4da2-9f84-185648189321" />
   <Project Path="OpenDredmor/OpenDredmor.csproj">
     <Platform Solution="*|x64" Project="x64" />
   </Project>
