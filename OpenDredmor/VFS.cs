@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
-using OpenDredmor.CommonInterfaces;
+﻿using OpenDredmor.CommonInterfaces;
 
 namespace OpenDredmor;
 
@@ -8,7 +6,7 @@ class VFS : BaseVFS
 {
     readonly string[] expansionDirectoryNames;
 
-    public VFS([FromKeyedServices(ConfigurationKeys.GameDirectory)] IFileProvider fileProvider) : base(fileProvider)
+    public VFS(IGameLocation gameLocation) : base(gameLocation.FileProvider)
     {
         // Count expansions by checking for directories named "expansionX"
         var expansionCount = 0;
@@ -31,7 +29,7 @@ class VFS : BaseVFS
 
     public override Stream OpenLatestFile(string path)
     {
-        foreach(var expansionDirectoryName in expansionDirectoryNames)
+        foreach (var expansionDirectoryName in expansionDirectoryNames)
         {
             var fullPath = Path.Combine(expansionDirectoryName, path);
             var fileInfo = fileProvider.GetFileInfo(fullPath);

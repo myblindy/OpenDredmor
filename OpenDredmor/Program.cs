@@ -8,7 +8,6 @@ using OpenDredmor.Audio.SDL3;
 using OpenDredmor.CommonInterfaces;
 using OpenDredmor.Renderer.SDL3;
 
-
 var appBuilder = Host.CreateApplicationBuilder(args);
 appBuilder.Logging.AddConsole();
 appBuilder.Services
@@ -16,19 +15,8 @@ appBuilder.Services
     .AddSingleton<BaseVFS, VFS>()
     .AddSingleton<BaseAudio, AudioSDL3>()
     .AddSingleton<BaseRenderer, RendererSDL3>()
-    .AddSingleton<BaseGame, Game>();
-
-if (OperatingSystem.IsWindows())
-{
-    using var steamRegistryKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Wow6432Node\Valve\Steam");
-    var steamInstallPath = steamRegistryKey?.GetValue("InstallPath") as string ?? throw new NotImplementedException();
-
-    // TODO handle libraries
-    appBuilder.Services.AddKeyedSingleton<IFileProvider>(ConfigurationKeys.GameDirectory,
-        new PhysicalFileProvider(Path.Combine(steamInstallPath, "steamapps", "common", "Dungeons of Dredmor")));
-}
-else
-    throw new NotImplementedException();
+    .AddSingleton<BaseGame, Game>()
+    .AddSingleton<IGameLocation, GameLocation>();
 
 var app = appBuilder.Build();
 
