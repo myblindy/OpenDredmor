@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Microsoft.Extensions.Hosting;
 
 namespace OpenDredmor.CommonInterfaces;
 
-public abstract class BaseGame
+public abstract class BaseGame : IHostedService
 {
     protected BaseVFS VFS { get; }
     protected TimeProvider TimeProvider { get; }
@@ -21,7 +21,16 @@ public abstract class BaseGame
 
     public GameScene CurrentScene { get; set; }
 
-    public void Run() => Renderer.Run();
+    Thread? rendererThread;
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        rendererThread = new Thread(Renderer.Run) { Name = "Main Renderer Thread" };
+        rendererThread.Start();
+        return Task.CompletedTask;
+    }
+
+    public async Task StopAsync(CancellationToken cancellationToken) =>
+        await Renderer.StopAsync();
 }
 
 public enum GameScene

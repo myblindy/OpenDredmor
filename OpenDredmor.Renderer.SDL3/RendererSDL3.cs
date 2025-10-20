@@ -6,37 +6,51 @@ using SixLabors.ImageSharp.Formats;
 using System.Runtime.InteropServices;
 using SDL;
 using Image = SixLabors.ImageSharp.Image;
+using Nito.AsyncEx;
 
 namespace OpenDredmor.Renderer.SDL3;
 
-public unsafe class RendererSDL3 : BaseRenderer
+public class RendererSDL3 : BaseRenderer
 {
-    SDL_Window* window;
-    SDL_Renderer* renderer;
+    unsafe SDL_Window* window;
+    unsafe SDL_Renderer* renderer;
+    readonly AsyncManualResetEvent shutdownCompleteEvent = new();
 
-    public RendererSDL3(TimeProvider timeProvider, BaseVFS vfs)
+    public unsafe RendererSDL3(TimeProvider timeProvider, BaseVFS vfs)
         : base(timeProvider, vfs)
     {
-        if (!SDL.SDL3.SDL_Init(SDL_InitFlags.SDL_INIT_VIDEO))
-            throw new ApplicationException($"Failed to initialize SDL: {SDL.SDL3.SDL_GetError()}");
-        if (!SDL.SDL3.SDL_CreateWindowAndRenderer("OpenDredmor", Width = 800, Height = 600, 0, out window, out renderer))
-            throw new ApplicationException($"Failed to create SDL window and renderer: {SDL.SDL3.SDL_GetError()}");
     }
 
     readonly List<Sprite> sprites = [];
     readonly Dictionary<string, nint> loadedTextures = [];
 
-    public override void Run()
+    public unsafe override void Run()
     {
+        base.Run();
+
         var args = Environment.GetCommandLineArgs();
         if (SDL.SDL3.SDL_EnterAppMainCallbacks(args.Length, args, SdlAppInit, SdlAppIterate, SdlAppEvent, SdlAppQuit) != 0)
             throw new ApplicationException($"Failed to enter SDL app main callbacks: {SDL.SDL3.SDL_GetError()}");
+        shutdownCompleteEvent.Set();
     }
 
-    SDL_AppResult SdlAppInit(void** appState, int argc, byte** argv) =>
-        SDL_AppResult.SDL_APP_CONTINUE;
+    public override async Task StopAsync()
+    {
+        SDL.SDL3.SDL_PushEvent(new SDL_Event { type = (uint)SDL_EventType.SDL_EVENT_QUIT });
+        await shutdownCompleteEvent.WaitAsync();
+    }
 
-    SDL_AppResult SdlAppIterate(void* appState)
+    unsafe SDL_AppResult SdlAppInit(void** appState, int argc, byte** argv)
+    {
+        if (!SDL.SDL3.SDL_Init(SDL_InitFlags.SDL_INIT_VIDEO | SDL_InitFlags.SDL_INIT_AUDIO))
+            throw new ApplicationException($"Failed to initialize SDL: {SDL.SDL3.SDL_GetError()}");
+        if (!SDL.SDL3.SDL_CreateWindowAndRenderer("OpenDredmor", Width = 800, Height = 600, 0, out window, out renderer))
+            throw new ApplicationException($"Failed to create SDL window and renderer: {SDL.SDL3.SDL_GetError()}");
+
+        return SDL_AppResult.SDL_APP_CONTINUE;
+    }
+
+    unsafe SDL_AppResult SdlAppIterate(void* appState)
     {
         synchronizationContext.ExecutePendingWorkItems();
 
@@ -51,7 +65,7 @@ public unsafe class RendererSDL3 : BaseRenderer
         return SDL_AppResult.SDL_APP_CONTINUE;
     }
 
-    SDL_AppResult SdlAppEvent(void* appState, SDL_Event* @event)
+    unsafe SDL_AppResult SdlAppEvent(void* appState, SDL_Event* @event)
     {
         if (@event->Type == SDL_EventType.SDL_EVENT_QUIT)
             return SDL_AppResult.SDL_APP_SUCCESS;
@@ -61,7 +75,7 @@ public unsafe class RendererSDL3 : BaseRenderer
         return SDL_AppResult.SDL_APP_CONTINUE;
     }
 
-    void SdlAppQuit(void* appState, SDL_AppResult result)
+    unsafe void SdlAppQuit(void* appState, SDL_AppResult result)
     {
         SDL.SDL3.SDL_DestroyRenderer(renderer);
         renderer = null;
@@ -78,7 +92,7 @@ public unsafe class RendererSDL3 : BaseRenderer
     }
 
     static readonly DecoderOptions imageDecoderOptions = new() { Configuration = { PreferContiguousImageBuffers = true } };
-    void RenderQueuedSprites()
+    unsafe void RenderQueuedSprites()
     {
         foreach (var sprite in sprites)
         {

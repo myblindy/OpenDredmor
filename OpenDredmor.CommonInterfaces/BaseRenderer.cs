@@ -12,7 +12,7 @@ public abstract class BaseRenderer : IDisposable
     public readonly record struct MouseClickedEventArgs(float X, float Y, int Button);
     public event EventHandler<MouseClickedEventArgs>? OnMouseClicked;
 
-    protected readonly SingleThreadSynchronizationContext synchronizationContext;
+    protected SingleThreadSynchronizationContext synchronizationContext;
 
     public int Width { get; protected set; }
     public int Height { get; protected set; }
@@ -21,14 +21,17 @@ public abstract class BaseRenderer : IDisposable
     {
         this.timeProvider = timeProvider;
         this.vfs = vfs;
-        synchronizationContext = new SingleThreadSynchronizationContext();
-        SynchronizationContext.SetSynchronizationContext(synchronizationContext);
     }
 
     protected void FireOnNewFrame() => OnNewFrame?.Invoke();
     protected void FireOnMouseClicked(float x, float y, int button) => OnMouseClicked?.Invoke(this, new MouseClickedEventArgs(x, y, button));
 
-    public abstract void Run();
+    public virtual void Run()
+    {
+        synchronizationContext = new SingleThreadSynchronizationContext();
+        SynchronizationContext.SetSynchronizationContext(synchronizationContext);
+    }
+    public abstract Task StopAsync();
 
     public abstract void RenderSprites(params ReadOnlySpan<Sprite> sprites);
 

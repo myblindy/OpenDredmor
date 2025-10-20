@@ -77,5 +77,11 @@ static unsafe class SDL3Helpers
                     NativeMemory.Free(argvPtr);
             }
         }
+
+        public static SDLBool SDL_PushEvent(in SDL_Event sdlEvent)
+        {
+            fixed (SDL_Event* pEvent = &sdlEvent)
+                return SDL.SDL3.SDL_PushEvent(pEvent);
+        }
     }
 }

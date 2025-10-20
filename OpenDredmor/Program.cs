@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Win32;
 using OpenDredmor;
 using OpenDredmor.Audio.SDL3;
 using OpenDredmor.CommonInterfaces;
@@ -15,9 +13,8 @@ appBuilder.Services
     .AddSingleton<BaseVFS, VFS>()
     .AddSingleton<BaseAudio, AudioSDL3>()
     .AddSingleton<BaseRenderer, RendererSDL3>()
-    .AddSingleton<BaseGame, Game>()
-    .AddSingleton<IGameLocation, GameLocation>();
+    .AddSingleton<IGameLocation, GameLocation>()
+    .AddHostedService<Game>();
 
 var app = appBuilder.Build();
-
-app.Services.GetRequiredService<BaseGame>().Run();
+app.Run();
