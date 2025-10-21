@@ -1,7 +1,4 @@
 ﻿using SDL;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace OpenDredmor.SDL3.Helpers;
 

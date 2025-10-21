@@ -14,6 +14,7 @@ appBuilder.Services
     .AddSingleton<BaseAudio, AudioSDL3>()
     .AddSingleton<BaseRenderer, RendererSDL3>()
     .AddSingleton<IGameLocation, GameLocation>()
+    .AddSingleton<BaseUI, UI>()
     .AddHostedService<Game>();
 
 var app = appBuilder.Build();

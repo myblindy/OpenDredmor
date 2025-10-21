@@ -12,9 +12,15 @@ public abstract class BaseRenderer(TimeProvider timeProvider, BaseVFS vfs, IHost
     public event Action? OnNewFrame;
     protected void FireOnNewFrame() => OnNewFrame?.Invoke();
 
-    public readonly record struct MouseClickedEventArgs(float X, float Y, int Button);
-    public event EventHandler<MouseClickedEventArgs>? OnMouseClicked;
-    protected void FireOnMouseClicked(float x, float y, int button) => OnMouseClicked?.Invoke(this, new MouseClickedEventArgs(x, y, button));
+    public readonly record struct MouseActionEventArgs(float X, float Y, int Button, bool Pressed);
+    public event EventHandler<MouseActionEventArgs>? OnMouseAction;
+    protected void FireOnMouseAction(float x, float y, int button, bool pressed) =>
+        OnMouseAction?.Invoke(this, new MouseActionEventArgs(x, y, button, pressed));
+
+    public readonly record struct MouseMovedEventArgs(float X, float Y);
+    public event EventHandler<MouseMovedEventArgs>? OnMouseMoved;
+    protected void FireOnMouseMoved(float x, float y) =>
+        OnMouseMoved?.Invoke(this, new MouseMovedEventArgs(x, y));
 
     protected SingleThreadSynchronizationContext? SynchronizationContext { get; private set; }
 
@@ -36,4 +42,4 @@ public abstract class BaseRenderer(TimeProvider timeProvider, BaseVFS vfs, IHost
     public abstract void Dispose();
 }
 
-public record struct Sprite(string Path, Rect2 DstRect);
+public record struct Sprite(string Path, Rect2 DstRect, int Expansion = -1);

@@ -18,7 +18,7 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
     unsafe SDL_Renderer* renderer;
     readonly AsyncManualResetEvent shutdownCompleteEvent = new();
     readonly List<Sprite> sprites = [];
-    readonly Dictionary<string, nint> loadedTextures = [];
+    readonly Dictionary<(string Path, int Expansion), nint> loadedTextures = [];
 
     public override unsafe void Run()
     {
@@ -66,7 +66,11 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
         if (@event->Type == SDL_EventType.SDL_EVENT_QUIT)
             return SDL_AppResult.SDL_APP_SUCCESS;
         else if (@event->Type == SDL_EventType.SDL_EVENT_MOUSE_BUTTON_DOWN)
-            FireOnMouseClicked(@event->button.x, @event->button.y, @event->button.button);
+            FireOnMouseAction(@event->button.x, @event->button.y, @event->button.button, true);
+        else if (@event->Type == SDL_EventType.SDL_EVENT_MOUSE_BUTTON_UP)
+            FireOnMouseAction(@event->button.x, @event->button.y, @event->button.button, false);
+        else if (@event->Type == SDL_EventType.SDL_EVENT_MOUSE_MOTION)
+            FireOnMouseMoved(@event->motion.x, @event->motion.y);
 
         return SDL_AppResult.SDL_APP_CONTINUE;
     }
@@ -90,17 +94,18 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
     {
         foreach (var sprite in sprites)
         {
-            if (!loadedTextures.TryGetValue(sprite.Path, out var texture))
+            if (!loadedTextures.TryGetValue((sprite.Path, sprite.Expansion), out var texture))
             {
                 Image<Bgra32> image;
-                using (var imageStream = VFS.OpenLatestFile(sprite.Path))
+                using (var imageStream = VFS.OpenStream(sprite.Path, sprite.Expansion))
                     image = Image.Load<Bgra32>(imageDecoderOptions, imageStream);
 
                 if (!image.DangerousTryGetSinglePixelMemory(out var pixelMemory))
                     throw new NotImplementedException();
 
-                loadedTextures[sprite.Path] = texture = (IntPtr)SDL.SDL3.SDL_CreateTexture(renderer, SDL_PixelFormat.SDL_PIXELFORMAT_ARGB8888,
-                    (int)SDL_TextureAccess.SDL_TEXTUREACCESS_STATIC, image.Width, image.Height);
+                loadedTextures[(sprite.Path, sprite.Expansion)] = texture =
+                    (IntPtr)SDL.SDL3.SDL_CreateTexture(renderer, SDL_PixelFormat.SDL_PIXELFORMAT_ARGB8888,
+                        (int)SDL_TextureAccess.SDL_TEXTUREACCESS_STATIC, image.Width, image.Height);
 
                 SDL.SDL3.SDL_UpdateTexture((SDL_Texture*)texture, new SDL_Rect { w = image.Width, h = image.Height },
                     MemoryMarshal.AsBytes(pixelMemory.Span), image.Width * sizeof(Bgra32));

@@ -7,14 +7,18 @@ public abstract class BaseGame : IHostedService
     protected BaseVFS VFS { get; }
     protected TimeProvider TimeProvider { get; }
     protected BaseRenderer Renderer { get; }
+    protected BaseUI UI { get; }
+    protected BaseAudio Audio { get; }
 
-    public BaseGame(BaseVFS vfs, BaseRenderer renderer, TimeProvider timeProvider)
+    public BaseGame(BaseVFS vfs, BaseRenderer renderer, BaseUI ui, BaseAudio audio, TimeProvider timeProvider)
     {
         VFS = vfs;
         Renderer = renderer;
         TimeProvider = timeProvider;
+        UI = ui;
+        Audio = audio;
 
-        Renderer.OnMouseClicked += (s, e) => OnMouseClicked(e.X, e.Y);
+        Renderer.OnMouseAction += (s, e) => OnMouseClicked(e.X, e.Y);
     }
 
     protected abstract void OnMouseClicked(float x, float y);
