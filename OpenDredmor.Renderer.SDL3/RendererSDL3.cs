@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Nito.AsyncEx;
 using OpenDredmor.CommonInterfaces;
+using OpenDredmor.CommonInterfaces.Support;
 using OpenDredmor.SDL3.Helpers;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -8,7 +9,6 @@ using SixLabors.ImageSharp.Formats;
 using System.Runtime.InteropServices;
 using SDL;
 using Image = SixLabors.ImageSharp.Image;
-using OpenDredmor.CommonInterfaces.Support;
 
 namespace OpenDredmor.Renderer.SDL3;
 
@@ -109,12 +109,10 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
                         H = rect.H <= 0 ? texH : rect.H,
                     };
                 else if (result.W > 0 && result.H <= 0)
-                {
                     result = result with
                     {
                         H = rect.W * texH / texW,
                     };
-                }
                 else
                     throw new NotImplementedException();
             }
