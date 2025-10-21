@@ -23,14 +23,15 @@ sealed class UI : BaseUI
     protected override void OnMouseAction(object? sender, BaseRenderer.MouseActionEventArgs e) =>
         (x, y, down) = (e.X, e.Y, e.Pressed);
 
-    public override bool ImageButton(string image, string? imageHover, string? imageDown, in Rect2 rect)
+    public override bool ImageButton(string image, string? imageHover, string? imageDown, in Rect2 rect, SpriteAnchor anchor, int expansion)
     {
-        var inside = rect.Contains(x, y);
+        var transformedRect = Renderer.TransformRect2(image, rect, anchor);
+        var inside = transformedRect.Contains(x, y);
         Renderer.RenderSprites(new Sprite(
             inside && down && imageDown is not null ? imageDown
                 : inside && !down && imageHover is not null ? imageHover
                 : image,
-            new(rect.X, rect.Y, rect.W, rect.H)));
+            rect, Anchor: anchor));
 
         return inside && upThisFrame;
     }

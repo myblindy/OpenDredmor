@@ -38,6 +38,13 @@ public static unsafe class SDL3Helpers
                 return SDL.SDL3.SDL_RenderTexture(renderer, texture, srcRect, pDstRect);
         }
 
+        public static SDLBool SDL_RenderTextureTiled(SDL_Renderer* renderer, SDL_Texture* texture,
+            SDL_FRect* srcRect, float scale, in SDL_FRect dstRect)
+        {
+            fixed (SDL_FRect* pDstRect = &dstRect)
+                return SDL.SDL3.SDL_RenderTextureTiled(renderer, texture, srcRect, scale, pDstRect);
+        }
+
         public static int SDL_EnterAppMainCallbacks(int argc, string[] argv,
             SDLAppInitFunc appInitFunc, SDLAppIterateFunc appIterateFunc, SDLAppEventFunc appEventFunc,
             SDLAppQuitFunc appQuitFunc)

@@ -37,9 +37,13 @@ public abstract class BaseRenderer(TimeProvider timeProvider, BaseVFS vfs, IHost
     }
     public abstract Task StopAsync();
 
+    public abstract Rect2 TransformRect2(string? image, in Rect2 rect,
+        SpriteAnchor anchor = SpriteAnchor.TopLeft, int expansion = -1);
     public abstract void RenderSprites(params ReadOnlySpan<Sprite> sprites);
 
     public abstract void Dispose();
 }
 
-public record struct Sprite(string Path, Rect2 DstRect, int Expansion = -1);
+public enum SpriteAnchor { TopLeft, TopCenter, TopRight, Center }
+public record struct Sprite(string Path, Rect2 DstRect,
+    SpriteAnchor Anchor = SpriteAnchor.TopLeft, bool Tile = false, int Expansion = -1);

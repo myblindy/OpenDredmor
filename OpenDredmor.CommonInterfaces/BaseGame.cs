@@ -40,5 +40,6 @@ public abstract class BaseGame : IHostedService
 public enum GameScene
 {
     MainMenu,
+    NewGameChooseDifficultyMenu,
     InGame,
 }

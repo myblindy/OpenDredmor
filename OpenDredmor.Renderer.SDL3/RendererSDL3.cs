@@ -8,6 +8,7 @@ using SixLabors.ImageSharp.Formats;
 using System.Runtime.InteropServices;
 using SDL;
 using Image = SixLabors.ImageSharp.Image;
+using OpenDredmor.CommonInterfaces.Support;
 
 namespace OpenDredmor.Renderer.SDL3;
 
@@ -89,6 +90,50 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
     public override void RenderSprites(params scoped ReadOnlySpan<Sprite> sprites) =>
         this.sprites.AddRange(sprites);
 
+    public override unsafe Rect2 TransformRect2(string? image, in Rect2 rect, SpriteAnchor anchor, int expansion)
+    {
+        var result = rect;
+        if (result.W <= 0 || result.H <= 0)
+        {
+            if (image is null)
+                throw new ArgumentNullException(nameof(image), "Image must be provided when using auto size.");
+
+            if (loadedTextures.TryGetValue((image, expansion), out var texture))
+            {
+                SDL.SDL3.SDL_GetTextureSize((SDL_Texture*)texture, out var texW, out var texH);
+
+                if (result.W <= 0 && result.H <= 0)
+                    result = result with
+                    {
+                        W = rect.W <= 0 ? texW : rect.W,
+                        H = rect.H <= 0 ? texH : rect.H,
+                    };
+                else if (result.W > 0 && result.H <= 0)
+                {
+                    result = result with
+                    {
+                        H = rect.W * texH / texW,
+                    };
+                }
+                else
+                    throw new NotImplementedException();
+            }
+        }
+
+        return anchor switch
+        {
+            SpriteAnchor.TopLeft => result,
+            SpriteAnchor.TopCenter => result with { X = result.X - result.W / 2 },
+            SpriteAnchor.TopRight => result with { X = result.X - result.W },
+            SpriteAnchor.Center => result with
+            {
+                X = result.X - result.W / 2,
+                Y = result.Y - result.H / 2,
+            },
+            _ => throw new NotImplementedException(),
+        };
+    }
+
     static readonly DecoderOptions imageDecoderOptions = new() { Configuration = { PreferContiguousImageBuffers = true } };
     unsafe void RenderQueuedSprites()
     {
@@ -111,34 +156,19 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
                     MemoryMarshal.AsBytes(pixelMemory.Span), image.Width * sizeof(Bgra32));
             }
 
-            SDL_FRect sdlDstFRect = default;
-            sdlDstFRect.x = sprite.DstRect.X;
-            sdlDstFRect.y = sprite.DstRect.Y;
-            if (sprite.DstRect.W <= 0 || sprite.DstRect.H <= 0)
+            var transformedRect = TransformRect2(sprite.Path, sprite.DstRect, sprite.Anchor, sprite.Expansion);
+            var sdlDstFRect = new SDL_FRect
             {
-                SDL.SDL3.SDL_GetTextureSize((SDL_Texture*)texture, out var texW, out var texH);
-                sdlDstFRect.w = sprite.DstRect.W <= 0 ? texW : sprite.DstRect.W;
-                sdlDstFRect.h = sprite.DstRect.H <= 0 ? texH : sprite.DstRect.H;
-            }
-            else if (sprite.DstRect.W > 0 && sprite.DstRect.H <= 0)
-            {
-                SDL.SDL3.SDL_GetTextureSize((SDL_Texture*)texture, out var texW, out var texH);
-                sdlDstFRect.w = sprite.DstRect.W;
-                sdlDstFRect.h = sprite.DstRect.W * texH / texW;
-            }
-            else
-            {
-                sdlDstFRect.w = sprite.DstRect.W;
-                sdlDstFRect.h = sprite.DstRect.H;
-            }
+                x = transformedRect.X,
+                y = transformedRect.Y,
+                w = transformedRect.W,
+                h = transformedRect.H,
+            };
 
-            SDL.SDL3.SDL_RenderTexture(renderer, (SDL_Texture*)texture, null, new SDL_FRect
-            {
-                x = sdlDstFRect.x / VirtualWidth * Width,
-                y = sdlDstFRect.y / VirtualHeight * Height,
-                w = sdlDstFRect.w / VirtualWidth * Width,
-                h = sdlDstFRect.h / VirtualHeight * Height,
-            });
+            if (!sprite.Tile)
+                SDL.SDL3.SDL_RenderTexture(renderer, (SDL_Texture*)texture, null, sdlDstFRect);
+            else
+                SDL.SDL3.SDL_RenderTextureTiled(renderer, (SDL_Texture*)texture, null, 1, sdlDstFRect);
         }
     }
 
