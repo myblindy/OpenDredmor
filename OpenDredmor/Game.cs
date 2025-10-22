@@ -4,10 +4,8 @@ namespace OpenDredmor;
 
 sealed partial class Game : BaseGame
 {
-    int mainMenuBackgroundExpansion;
-
-    public Game(BaseVFS vfs, BaseRenderer renderer, BaseUI ui, BaseAudio audio, TimeProvider timeProvider)
-        : base(vfs, renderer, ui, audio, timeProvider)
+    public Game(BaseVFS vfs, BaseRenderer renderer, BaseUI ui, BaseAudio audio, BaseGameData gameData, TimeProvider timeProvider)
+        : base(vfs, renderer, ui, audio, gameData, timeProvider)
     {
         renderer.OnNewFrame += OnNewFrame;
         mainMenuBackgroundExpansion = vfs.ExpansionDirectoryNames.Length - 1;
@@ -23,6 +21,8 @@ sealed partial class Game : BaseGame
             RenderSceneMainMenu();
         else if (CurrentScene == GameScene.NewGameChooseDifficultyMenu)
             RenderSceneNewGameChooseDifficultyMenu();
+        else if (CurrentScene == GameScene.NewGameSkillSelectionMenu)
+            RenderSceneNewGameSkillSelectionMenu();
         else
             throw new NotImplementedException();
     }

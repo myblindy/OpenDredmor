@@ -9,15 +9,16 @@ public abstract class BaseGame : IHostedService
     protected BaseRenderer Renderer { get; }
     protected BaseUI UI { get; }
     protected BaseAudio Audio { get; }
+    protected BaseGameData GameData { get; }
 
-    public BaseGame(BaseVFS vfs, BaseRenderer renderer, BaseUI ui, BaseAudio audio, TimeProvider timeProvider)
+    public BaseGame(BaseVFS vfs, BaseRenderer renderer, BaseUI ui, BaseAudio audio, BaseGameData gameData, TimeProvider timeProvider)
     {
         VFS = vfs;
         Renderer = renderer;
         TimeProvider = timeProvider;
         UI = ui;
         Audio = audio;
-
+        GameData = gameData;
         Renderer.OnMouseAction += (s, e) => OnMouseClicked(e.X, e.Y);
     }
 

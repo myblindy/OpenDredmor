@@ -4,6 +4,8 @@ namespace OpenDredmor;
 
 partial class Game
 {
+    int mainMenuBackgroundExpansion;
+
     void RenderSceneMainMenu()
     {
         Audio.PlayBGM("tunes/finaltitle.ogg");

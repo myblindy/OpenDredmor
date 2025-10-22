@@ -9,4 +9,6 @@ public abstract class BaseVFS(IFileProvider fileProvider)
     protected IFileProvider FileProvider { get; } = fileProvider;
 
     public abstract Stream OpenStream(string path, int expansion = -1);
+
+    public abstract IList<Stream> OpenAllExpansionStreams(string path, bool reverse = true);
 }

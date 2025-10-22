@@ -44,6 +44,8 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
         if (!SDL.SDL3.SDL_CreateWindowAndRenderer("OpenDredmor", Width = 1920, Height = 1080, 0, out window, out renderer))
             throw new InvalidOperationException($"Failed to create SDL window and renderer: {SDL.SDL3.SDL_GetError()}");
 
+        SDL.SDL3.SDL_SetRenderDrawBlendMode(renderer, SDL_BlendMode.SDL_BLENDMODE_BLEND);
+
         return SDL_AppResult.SDL_APP_CONTINUE;
     }
 
@@ -158,10 +160,16 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
                 h = transformedRect.H,
             };
 
+            if (sprite.Alpha != 1f)
+                SDL.SDL3.SDL_SetTextureAlphaModFloat((SDL_Texture*)texture, sprite.Alpha);
+
             if (!sprite.Tile)
                 SDL.SDL3.SDL_RenderTexture(renderer, (SDL_Texture*)texture, null, sdlDstFRect);
             else
                 SDL.SDL3.SDL_RenderTextureTiled(renderer, (SDL_Texture*)texture, null, 1, sdlDstFRect);
+
+            if (sprite.Alpha != 1f)
+                SDL.SDL3.SDL_SetTextureAlphaModFloat((SDL_Texture*)texture, 1f);
         }
     }
 

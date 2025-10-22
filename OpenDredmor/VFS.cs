@@ -49,4 +49,18 @@ sealed class VFS : BaseVFS
 
         throw new IOException($"File not found in any expansion: {path}");
     }
+
+    public override IList<Stream> OpenAllExpansionStreams(string path, bool reverse)
+    {
+        List<Stream> streams = [];
+        foreach (var expansionDirectoryName in
+            reverse ? ExpansionDirectoryNames.Reverse() : ExpansionDirectoryNames)
+        {
+            var fullPath = Path.Combine(expansionDirectoryName, path);
+            var fileInfo = FileProvider.GetFileInfo(fullPath);
+            if (fileInfo.Exists)
+                streams.Add(fileInfo.CreateReadStream());
+        }
+        return streams;
+    }
 }

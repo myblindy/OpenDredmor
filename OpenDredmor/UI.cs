@@ -23,9 +23,9 @@ sealed class UI : BaseUI
     protected override void OnMouseAction(object? sender, BaseRenderer.MouseActionEventArgs e) =>
         (x, y, down) = (e.X, e.Y, e.Pressed);
 
-    public override bool InvisibleButton(in Rect2 rect, SpriteAnchor anchor = SpriteAnchor.TopLeft)
+    public override bool InvisibleButton(in Rect2 rect, SpriteAnchor anchor = SpriteAnchor.TopLeft, string? referenceImage = null)
     {
-        var transformedRect = Renderer.TransformRect2(null, rect, anchor);
+        var transformedRect = Renderer.TransformRect2(referenceImage, rect, anchor);
         var inside = transformedRect.Contains(x, y);
         return inside && upThisFrame;
     }
@@ -35,8 +35,8 @@ sealed class UI : BaseUI
         var transformedRect = Renderer.TransformRect2(image, rect, anchor);
         var inside = transformedRect.Contains(x, y);
         Renderer.RenderSprites(new Sprite(
-            inside && down && imageDown is not null ? imageDown
-                : inside && !down && imageHover is not null ? imageHover
+            inside && down ? (imageDown ?? imageHover ?? image)
+                : inside && !down ? (imageHover ?? image)
                 : image,
             rect, Anchor: anchor));
 

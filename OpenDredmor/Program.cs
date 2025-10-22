@@ -15,6 +15,8 @@ appBuilder.Services
     .AddSingleton<BaseRenderer, RendererSDL3>()
     .AddSingleton<IGameLocation, GameLocation>()
     .AddSingleton<BaseUI, UI>()
+    .AddSingleton<BaseGameData, GameData>()
+    .AddHostedService(p => p.GetRequiredService<BaseGameData>())
     .AddHostedService<Game>();
 
 var app = appBuilder.Build();
