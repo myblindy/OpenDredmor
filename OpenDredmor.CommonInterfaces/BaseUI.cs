@@ -6,6 +6,8 @@ public abstract class BaseUI
 {
     protected BaseRenderer Renderer { get; }
 
+    public bool IsLastHovered { get; protected set; }
+
     public BaseUI(BaseRenderer renderer)
     {
         Renderer = renderer;

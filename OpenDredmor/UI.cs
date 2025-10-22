@@ -26,17 +26,17 @@ sealed class UI : BaseUI
     public override bool InvisibleButton(in Rect2 rect, SpriteAnchor anchor = SpriteAnchor.TopLeft, string? referenceImage = null)
     {
         var transformedRect = Renderer.TransformRect2(referenceImage, rect, anchor);
-        var inside = transformedRect.Contains(x, y);
-        return inside && upThisFrame;
+        IsLastHovered = transformedRect.Contains(x, y);
+        return IsLastHovered && upThisFrame;
     }
 
     public override bool ImageButton(string image, string? imageHover, string? imageDown, in Rect2 rect, SpriteAnchor anchor, int expansion)
     {
         var transformedRect = Renderer.TransformRect2(image, rect, anchor);
-        var inside = transformedRect.Contains(x, y);
+        IsLastHovered = transformedRect.Contains(x, y);
         Renderer.RenderSprites(new Sprite(
-            inside && down ? (imageDown ?? imageHover ?? image)
-                : inside && !down ? (imageHover ?? image)
+            IsLastHovered && down ? (imageDown ?? imageHover ?? image)
+                : IsLastHovered && !down ? (imageHover ?? image)
                 : image,
             rect, Anchor: anchor));
 

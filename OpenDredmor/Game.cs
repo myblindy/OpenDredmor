@@ -23,6 +23,8 @@ sealed partial class Game : BaseGame
             RenderSceneNewGameChooseDifficultyMenu();
         else if (CurrentScene == GameScene.NewGameSkillSelectionMenu)
             RenderSceneNewGameSkillSelectionMenu();
+        else if (CurrentScene == GameScene.NewGameNameMenu)
+            RenderSceneNewGameNameMenu();
         else
             throw new NotImplementedException();
     }

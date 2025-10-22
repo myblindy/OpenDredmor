@@ -41,9 +41,11 @@ public abstract class BaseRenderer(TimeProvider timeProvider, BaseVFS vfs, IHost
         SpriteAnchor anchor = SpriteAnchor.TopLeft, int expansion = -1);
     public abstract void RenderSprites(params ReadOnlySpan<Sprite> sprites);
 
+    public abstract void RenderText(string text, float emSize, in Rect2 rect, SpriteAnchor anchor = SpriteAnchor.Center);
+
     public abstract void Dispose();
 }
 
-public enum SpriteAnchor { TopLeft, TopCenter, TopRight, Center }
+public enum SpriteAnchor { TopLeft, TopCenter, TopRight, Center, LeftCenter }
 public record struct Sprite(string Path, Rect2 DstRect,
     SpriteAnchor Anchor = SpriteAnchor.TopLeft, float Alpha = 1f, bool Tile = false, int Expansion = -1);

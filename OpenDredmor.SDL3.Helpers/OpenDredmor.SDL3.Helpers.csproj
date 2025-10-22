@@ -11,6 +11,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="ppy.SDL3_mixer-CS" Version="2025.920.0" />
+		<PackageReference Include="ppy.SDL3_ttf-CS" Version="2025.920.0" />
 	</ItemGroup>
 
 </Project>

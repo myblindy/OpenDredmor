@@ -7,7 +7,7 @@ partial class Game
 {
     int newGameSkillGridRowOffset;
     readonly List<Skill> newGameSelectedSkills = [];
-    int newGameMaxSelectableSkills = 7;
+    readonly int newGameMaxSelectableSkills = 7;
 
     void RenderSceneNewGameSkillSelectionMenu()
     {
@@ -15,6 +15,7 @@ partial class Game
             new Sprite(@"ui/menus/bg_stonetile.png",
                 new(0, 0, BaseRenderer.VirtualWidth, BaseRenderer.VirtualHeight), Tile: true),
             new Sprite(@"ui/menus/bg_paintingframe.png", new(544, 224, 832, 632)),
+            new Sprite(@"ui/menus/skillchoose_skillinfo_bg.png", new(564, 721, 0, 0)),
 
             new Sprite(@"ui/menus/topbar_horz_tile_bg.png",
                 new(0, 0, BaseRenderer.VirtualWidth, 64), Tile: true),
@@ -32,6 +33,8 @@ partial class Game
         if (UI.ImageButton(@"ui/skillselect_done0.png", @"ui/skillselect_done1.png", @"ui/skillselect_done2.png",
             new(BaseRenderer.VirtualWidth, 0, 0, 0), SpriteAnchor.TopRight))
         {
+            if (newGameSelectedSkills.Count == newGameMaxSelectableSkills)
+                CurrentScene = GameScene.NewGameNameMenu;
         }
 
         const int gridStartX = 564, gridStartY = 242, gridOffsetX = 642 - gridStartX, gridOffsetY = 318 - gridStartY;
@@ -52,10 +55,10 @@ partial class Game
         }
 
         // skill grid
-        for (int row = 0; row < gridRows; row++)
-            for (int col = 0; col < gridCols; col++)
+        for (var row = 0; row < gridRows; row++)
+            for (var col = 0; col < gridCols; col++)
             {
-                int skillIndex = (newGameSkillGridRowOffset + row) * gridCols + col;
+                var skillIndex = (newGameSkillGridRowOffset + row) * gridCols + col;
                 if (skillIndex >= GameData.SortedSkills.Length)
                     break;
 
@@ -74,12 +77,18 @@ partial class Game
                     else if (newGameSelectedSkills.Count < newGameMaxSelectableSkills)
                         newGameSelectedSkills.Add(skill);
                 }
+
+                if (UI.IsLastHovered)
+                {
+                    Renderer.RenderText(skill.Name, 35f, new(577, 736, 341, 90));
+                    Renderer.RenderText(skill.Description, 16f, new(917, 736, 425, 90), SpriteAnchor.TopLeft);
+                }
             }
 
         // selected skills
         const int selectedGridStartX = 579, selectedGridStartY = 640, selectedGridOffsetX = 667 - selectedGridStartX;
         List<Skill>? skillsToRemove = default;
-        for (int col = 0; col < newGameSelectedSkills.Count; ++col)
+        for (var col = 0; col < newGameSelectedSkills.Count; ++col)
             if (UI.ImageButton(newGameSelectedSkills[col].SpritePath, null, null,
                 new(selectedGridStartX + col * selectedGridOffsetX, selectedGridStartY, 0, 0)))
             {

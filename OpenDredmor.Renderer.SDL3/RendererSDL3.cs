@@ -3,11 +3,14 @@ using Nito.AsyncEx;
 using OpenDredmor.CommonInterfaces;
 using OpenDredmor.CommonInterfaces.Support;
 using OpenDredmor.SDL3.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Formats;
-using System.Runtime.InteropServices;
 using SDL;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.PixelFormats;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Xml;
+using static System.Net.Mime.MediaTypeNames;
 using Image = SixLabors.ImageSharp.Image;
 
 namespace OpenDredmor.Renderer.SDL3;
@@ -17,6 +20,8 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
 {
     unsafe SDL_Window* window;
     unsafe SDL_Renderer* renderer;
+    unsafe TTF_TextEngine* textEngine;
+    readonly Dictionary<float, IntPtr> fonts = [];
     readonly AsyncManualResetEvent shutdownCompleteEvent = new();
     readonly List<Sprite> sprites = [];
     readonly Dictionary<(string Path, int Expansion), nint> loadedTextures = [];
@@ -37,12 +42,30 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
         await shutdownCompleteEvent.WaitAsync();
     }
 
+    unsafe TTF_Font* GetFont(float size)
+    {
+        size *= Height / VirtualHeight;
+
+        if (!fonts.TryGetValue(size, out var fontPtr))
+        {
+            var font = SDL.SDL3_ttf.TTF_OpenFontIO(SDL3StreamManager.CreateSDLIOStreamFromStream(VFS.OpenStream("fonts/Austin.ttf")), true, size);
+            if (font == null)
+                throw new InvalidOperationException($"Failed to load font: {SDL.SDL3.SDL_GetError()}");
+            fonts[size] = fontPtr = (IntPtr)font;
+        }
+        return (TTF_Font*)fontPtr;
+    }
+
     unsafe SDL_AppResult SdlAppInit(void** appState, int argc, byte** argv)
     {
         if (!SDL.SDL3.SDL_Init(SDL_InitFlags.SDL_INIT_VIDEO | SDL_InitFlags.SDL_INIT_AUDIO))
             throw new InvalidOperationException($"Failed to initialize SDL: {SDL.SDL3.SDL_GetError()}");
         if (!SDL.SDL3.SDL_CreateWindowAndRenderer("OpenDredmor", Width = 1920, Height = 1080, 0, out window, out renderer))
             throw new InvalidOperationException($"Failed to create SDL window and renderer: {SDL.SDL3.SDL_GetError()}");
+
+        if (!SDL3_ttf.TTF_Init())
+            throw new InvalidOperationException($"Failed to initialize SDL_ttf: {SDL.SDL3.SDL_GetError()}");
+        textEngine = SDL3_ttf.TTF_CreateRendererTextEngine(renderer);
 
         SDL.SDL3.SDL_SetRenderDrawBlendMode(renderer, SDL_BlendMode.SDL_BLENDMODE_BLEND);
 
@@ -58,7 +81,6 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
         SDL.SDL3.SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL.SDL3.SDL_RenderClear(renderer);
         FireOnNewFrame();
-        RenderQueuedSprites();
         SDL.SDL3.SDL_RenderPresent(renderer);
 
         return SDL_AppResult.SDL_APP_CONTINUE;
@@ -88,9 +110,6 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
 
         AppLifetime.StopApplication();
     }
-
-    public override void RenderSprites(params scoped ReadOnlySpan<Sprite> sprites) =>
-        this.sprites.AddRange(sprites);
 
     public override unsafe Rect2 TransformRect2(string? image, in Rect2 rect, SpriteAnchor anchor, int expansion)
     {
@@ -125,12 +144,13 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
                 X = result.X - result.W / 2,
                 Y = result.Y - result.H / 2,
             },
+            SpriteAnchor.LeftCenter => result with { Y = result.Y - result.H / 2 },
             _ => throw new NotImplementedException(),
         };
     }
 
     static readonly DecoderOptions imageDecoderOptions = new() { Configuration = { PreferContiguousImageBuffers = true } };
-    unsafe void RenderQueuedSprites()
+    public override unsafe void RenderSprites(params scoped ReadOnlySpan<Sprite> sprites)
     {
         foreach (var sprite in sprites)
         {
@@ -173,6 +193,38 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
         }
     }
 
+    public override unsafe void RenderText(string? text, float emSize, in Rect2 rect, SpriteAnchor anchor)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return;
+
+        var font = GetFont(emSize);
+        SDL3_ttf.TTF_SetFontWrapAlignment(font, anchor switch
+        {
+            SpriteAnchor.TopLeft or SpriteAnchor.LeftCenter => TTF_HorizontalAlignment.TTF_HORIZONTAL_ALIGN_LEFT,
+            SpriteAnchor.TopCenter or SpriteAnchor.Center => TTF_HorizontalAlignment.TTF_HORIZONTAL_ALIGN_CENTER,
+            SpriteAnchor.TopRight => TTF_HorizontalAlignment.TTF_HORIZONTAL_ALIGN_RIGHT,
+            _ => throw new NotImplementedException()
+        });
+        var sdlText = SDL3_ttf.TTF_CreateText(textEngine, font, text, (nuint)text.Length);
+        SDL3_ttf.TTF_SetTextWrapWidth(sdlText, (int)Math.Ceiling(rect.W));
+        SDL3_ttf.TTF_GetTextSize(sdlText, out var textW, out var textH);
+
+        var (x, y) = anchor switch
+        {
+            SpriteAnchor.TopLeft => (rect.X, rect.Y),
+            SpriteAnchor.TopCenter => (rect.X + (rect.W - textW) / 2, rect.Y),
+            SpriteAnchor.TopRight => (rect.X + rect.W - textW, rect.Y),
+            SpriteAnchor.Center => (rect.X + (rect.W - textW) / 2, rect.Y + (rect.H - textH) / 2),
+            SpriteAnchor.LeftCenter => (rect.X, rect.Y + (rect.H - textH) / 2),
+            _ => throw new NotImplementedException()
+        };
+
+        SDL3_ttf.TTF_SetTextColorFloat(sdlText, 0, 0, 0, 1);
+        SDL3_ttf.TTF_DrawRendererText(sdlText, x, y);
+
+        SDL3_ttf.TTF_DestroyText(sdlText);
+    }
+
     #region IDisposable
     bool disposedValue;
 
@@ -202,5 +254,5 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
-    #endregion 
+    #endregion
 }
