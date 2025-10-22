@@ -41,5 +41,6 @@ public enum GameScene
 {
     MainMenu,
     NewGameChooseDifficultyMenu,
+    NewGameSkillSelectionMenu,
     InGame,
 }

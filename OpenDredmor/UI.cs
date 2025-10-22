@@ -23,6 +23,13 @@ sealed class UI : BaseUI
     protected override void OnMouseAction(object? sender, BaseRenderer.MouseActionEventArgs e) =>
         (x, y, down) = (e.X, e.Y, e.Pressed);
 
+    public override bool InvisibleButton(in Rect2 rect, SpriteAnchor anchor = SpriteAnchor.TopLeft)
+    {
+        var transformedRect = Renderer.TransformRect2(null, rect, anchor);
+        var inside = transformedRect.Contains(x, y);
+        return inside && upThisFrame;
+    }
+
     public override bool ImageButton(string image, string? imageHover, string? imageDown, in Rect2 rect, SpriteAnchor anchor, int expansion)
     {
         var transformedRect = Renderer.TransformRect2(image, rect, anchor);
@@ -33,6 +40,6 @@ sealed class UI : BaseUI
                 : image,
             rect, Anchor: anchor));
 
-        return inside && upThisFrame;
+        return InvisibleButton(transformedRect);
     }
 }

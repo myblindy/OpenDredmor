@@ -94,11 +94,7 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
     {
         var result = rect;
         if (result.W <= 0 || result.H <= 0)
-        {
-            if (image is null)
-                throw new ArgumentNullException(nameof(image), "Image must be provided when using auto size.");
-
-            if (loadedTextures.TryGetValue((image, expansion), out var texture))
+            if (image is not null && loadedTextures.TryGetValue((image, expansion), out var texture))
             {
                 SDL.SDL3.SDL_GetTextureSize((SDL_Texture*)texture, out var texW, out var texH);
 
@@ -116,7 +112,6 @@ public class RendererSDL3(TimeProvider timeProvider, BaseVFS vfs, IHostApplicati
                 else
                     throw new NotImplementedException();
             }
-        }
 
         return anchor switch
         {
