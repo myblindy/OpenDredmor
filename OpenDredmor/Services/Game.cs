@@ -1,31 +1,26 @@
-﻿using OpenDredmor.CommonInterfaces.Services.Interfaces;
+﻿using Microsoft.Extensions.DependencyInjection;
+using OpenDredmor.CommonInterfaces.Models;
+using OpenDredmor.CommonInterfaces.Services.Interfaces;
 
 namespace OpenDredmor.Services;
 
 sealed partial class Game : BaseGame
 {
-    public Game(BaseVFS vfs, BaseRenderer renderer, BaseUI ui, BaseAudio audio, BaseGameData gameData, TimeProvider timeProvider)
-        : base(vfs, renderer, ui, audio, gameData, timeProvider)
-    {
-        renderer.OnNewFrame += OnNewFrame;
-        mainMenuBackgroundExpansion = vfs.ExpansionDirectoryNames.Length - 1;
-    }
+    readonly GameModel gameModel;
+    readonly IServiceProvider serviceProvider;
 
-    protected override void OnMouseClicked(float x, float y)
+    public Game(BaseVFS vfs, BaseRenderer renderer, GameModel gameModel, IServiceProvider serviceProvider)
+        : base(renderer)
     {
+        this.gameModel = gameModel;
+        this.serviceProvider = serviceProvider;
+        renderer.OnNewFrame += OnNewFrame;
+        gameModel.MainMenuBackgroundExpansion = vfs.ExpansionDirectoryNames.Length - 1;
     }
 
     void OnNewFrame()
     {
-        if (CurrentScene == GameScene.MainMenu)
-            RenderSceneMainMenu();
-        else if (CurrentScene == GameScene.NewGameChooseDifficultyMenu)
-            RenderSceneNewGameChooseDifficultyMenu();
-        else if (CurrentScene == GameScene.NewGameSkillSelectionMenu)
-            RenderSceneNewGameSkillSelectionMenu();
-        else if (CurrentScene == GameScene.NewGameNameMenu)
-            RenderSceneNewGameNameMenu();
-        else
-            throw new NotImplementedException();
+        serviceProvider.GetRequiredKeyedService<IGameScene>(gameModel.CurrentScene)
+            .RenderScene();
     }
 }

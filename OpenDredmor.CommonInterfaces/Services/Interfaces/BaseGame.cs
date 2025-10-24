@@ -2,29 +2,9 @@
 
 namespace OpenDredmor.CommonInterfaces.Services.Interfaces;
 
-public abstract class BaseGame : IHostedService
+public abstract class BaseGame(BaseRenderer renderer) : IHostedService
 {
-    protected BaseVFS VFS { get; }
-    protected TimeProvider TimeProvider { get; }
-    protected BaseRenderer Renderer { get; }
-    protected BaseUI UI { get; }
-    protected BaseAudio Audio { get; }
-    protected BaseGameData GameData { get; }
-
-    public BaseGame(BaseVFS vfs, BaseRenderer renderer, BaseUI ui, BaseAudio audio, BaseGameData gameData, TimeProvider timeProvider)
-    {
-        VFS = vfs;
-        Renderer = renderer;
-        TimeProvider = timeProvider;
-        UI = ui;
-        Audio = audio;
-        GameData = gameData;
-        Renderer.OnMouseAction += (s, e) => OnMouseClicked(e.X, e.Y);
-    }
-
-    protected abstract void OnMouseClicked(float x, float y);
-
-    public GameScene CurrentScene { get; set; }
+    protected BaseRenderer Renderer { get; } = renderer;
 
     Thread? rendererThread;
     public Task StartAsync(CancellationToken cancellationToken)
@@ -36,13 +16,4 @@ public abstract class BaseGame : IHostedService
 
     public async Task StopAsync(CancellationToken cancellationToken) =>
         await Renderer.StopAsync();
-}
-
-public enum GameScene
-{
-    MainMenu,
-    NewGameChooseDifficultyMenu,
-    NewGameSkillSelectionMenu,
-    NewGameNameMenu,
-    InGame,
 }
