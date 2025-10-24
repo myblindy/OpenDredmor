@@ -12,7 +12,7 @@ appBuilder.Logging.AddConsole();
 appBuilder.Services
     .AddSingleton(TimeProvider.System)
     .AddSingleton<BaseVFS, VFS>()
-    .AddSingleton<BaseAudio, AudioSDL3>()
+    .AddSingleton<IBaseAudio, AudioSDL3>()
     .AddSingleton<BaseRenderer, RendererSDL3>()
     .AddSingleton<IGameLocation, GameLocation>()
     .AddSingleton<BaseUI, UI>()

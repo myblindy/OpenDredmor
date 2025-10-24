@@ -4,7 +4,7 @@ using SDL;
 
 namespace OpenDredmor.Audio.SDL3;
 
-public class AudioSDL3(IGameLocation gameLocation) : BaseAudio
+public class AudioSDL3(IGameLocation gameLocation) : IBaseAudio
 {
     bool isInitialized;
     unsafe MIX_Mixer* mixer;
@@ -24,7 +24,7 @@ public class AudioSDL3(IGameLocation gameLocation) : BaseAudio
         isInitialized = true;
     }
 
-    public override unsafe void PlayBGM(string? path)
+    public unsafe void PlayBGM(string? path)
     {
         EnsureInitialized();
 

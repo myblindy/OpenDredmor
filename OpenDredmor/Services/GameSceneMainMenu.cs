@@ -3,7 +3,7 @@ using OpenDredmor.CommonInterfaces.Services.Interfaces;
 
 namespace OpenDredmor.Services;
 
-sealed class GameSceneMainMenu(GameModel gameModel, BaseAudio audio, BaseRenderer renderer,
+sealed class GameSceneMainMenu(GameModel gameModel, IBaseAudio audio, BaseRenderer renderer,
     BaseUI ui, BaseVFS vfs) : IGameScene
 {
     public void RenderScene()
