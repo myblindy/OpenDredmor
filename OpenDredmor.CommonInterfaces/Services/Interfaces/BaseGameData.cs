@@ -2,7 +2,7 @@
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 
-namespace OpenDredmor.CommonInterfaces;
+namespace OpenDredmor.CommonInterfaces.Services.Interfaces;
 
 public abstract class BaseGameData(BaseVFS vfs) : IHostedService
 {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Nito.AsyncEx;
-using OpenDredmor.CommonInterfaces;
+using OpenDredmor.CommonInterfaces.Services.Interfaces;
 using OpenDredmor.CommonInterfaces.Support;
 using OpenDredmor.SDL3.Helpers;
 using SDL;

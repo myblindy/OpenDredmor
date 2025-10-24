@@ -1,6 +1,6 @@
-﻿using OpenDredmor.CommonInterfaces;
+﻿using OpenDredmor.CommonInterfaces.Services.Interfaces;
 
-namespace OpenDredmor;
+namespace OpenDredmor.Services;
 
 sealed partial class Game : BaseGame
 {

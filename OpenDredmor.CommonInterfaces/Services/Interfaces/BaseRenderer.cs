@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Hosting;
 using OpenDredmor.CommonInterfaces.Support;
 
-namespace OpenDredmor.CommonInterfaces;
+namespace OpenDredmor.CommonInterfaces.Services.Interfaces;
 
 public abstract class BaseRenderer(TimeProvider timeProvider, BaseVFS vfs, IHostApplicationLifetime appLifetime) : IDisposable
 {

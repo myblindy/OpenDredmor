@@ -2,9 +2,9 @@
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
-using OpenDredmor.CommonInterfaces;
+using OpenDredmor.CommonInterfaces.Services.Interfaces;
 
-namespace OpenDredmor;
+namespace OpenDredmor.Services;
 
 sealed class GameLocation : IGameLocation
 {

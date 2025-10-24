@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.FileProviders;
 using System.Collections.Immutable;
 
-namespace OpenDredmor.CommonInterfaces;
+namespace OpenDredmor.CommonInterfaces.Services.Interfaces;
 
 public abstract class BaseVFS(IFileProvider fileProvider)
 {

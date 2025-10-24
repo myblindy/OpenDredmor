@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
-using OpenDredmor.CommonInterfaces;
+using OpenDredmor.CommonInterfaces.Services.Interfaces;
 using System.Collections.Frozen;
 using System.Xml.Linq;
 
-namespace OpenDredmor;
+namespace OpenDredmor.Services;
 
 sealed class GameData(BaseVFS vfs, ILogger<GameData> logger) : BaseGameData(vfs)
 {

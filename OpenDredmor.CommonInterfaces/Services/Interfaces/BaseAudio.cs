@@ -1,4 +1,4 @@
-﻿namespace OpenDredmor.CommonInterfaces;
+﻿namespace OpenDredmor.CommonInterfaces.Services.Interfaces;
 
 public abstract class BaseAudio
 {

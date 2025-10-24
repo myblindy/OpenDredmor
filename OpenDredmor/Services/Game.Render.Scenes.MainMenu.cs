@@ -1,6 +1,7 @@
 ﻿using OpenDredmor.CommonInterfaces;
+using OpenDredmor.CommonInterfaces.Services.Interfaces;
 
-namespace OpenDredmor;
+namespace OpenDredmor.Services;
 
 partial class Game
 {

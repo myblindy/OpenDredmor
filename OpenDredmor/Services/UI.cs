@@ -1,7 +1,7 @@
-﻿using OpenDredmor.CommonInterfaces;
+﻿using OpenDredmor.CommonInterfaces.Services.Interfaces;
 using OpenDredmor.CommonInterfaces.Support;
 
-namespace OpenDredmor;
+namespace OpenDredmor.Services;
 
 sealed class UI : BaseUI
 {

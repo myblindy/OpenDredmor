@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using OpenDredmor;
 using OpenDredmor.Audio.SDL3;
-using OpenDredmor.CommonInterfaces;
+using OpenDredmor.CommonInterfaces.Services.Interfaces;
 using OpenDredmor.Renderer.SDL3;
+using OpenDredmor.Services;
 
 var appBuilder = Host.CreateApplicationBuilder(args);
 appBuilder.Logging.AddConsole();

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.FileProviders;
 
-namespace OpenDredmor.CommonInterfaces;
+namespace OpenDredmor.CommonInterfaces.Services.Interfaces;
 
 public interface IGameLocation
 {

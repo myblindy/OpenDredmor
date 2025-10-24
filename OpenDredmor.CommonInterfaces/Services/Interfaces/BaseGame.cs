@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 
-namespace OpenDredmor.CommonInterfaces;
+namespace OpenDredmor.CommonInterfaces.Services.Interfaces;
 
 public abstract class BaseGame : IHostedService
 {

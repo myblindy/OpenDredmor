@@ -1,4 +1,4 @@
-﻿using OpenDredmor.CommonInterfaces;
+﻿using OpenDredmor.CommonInterfaces.Services.Interfaces;
 using OpenDredmor.SDL3.Helpers;
 using SDL;
 
